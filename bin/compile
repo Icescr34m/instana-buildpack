@@ -1,0 +1,30 @@
+#!/bin/bash
+# usage: bin/compile <build-dir> <cache-dir> <env-dir>
+
+
+set -o errexit
+set -o pipefail
+
+mkdir -p "$1" "$2"
+build=$(cd "$1/" && pwd)
+cache=$(cd "$2/" && pwd)
+env_dir=$3
+buildpack=$(cd "$(dirname $0)/.." && pwd)
+
+# Install Instana Dependencies
+echo "----> Installing instana Deps and Instana Package"
+sudo apt-get install -y python-software-properties debconf-utils
+sudo add-apt-repository ppa:webupd8team/java -y
+sudo apt-get update
+echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | sudo debconf-set-selections
+sudo apt-get install -y openjdk-8-jdk
+#Java path
+
+# Install Instana
+curl -o setup_agent.sh https://setup.instana.io/agent && chmod 700 ./setup_agent.sh && sudo ./setup_agent.sh -a pe80As0aR_SMQ3KBYu0Chg -t dynamic -l us -y -s
+
+# Start Instana
+service instana-agent start
+
+
+
